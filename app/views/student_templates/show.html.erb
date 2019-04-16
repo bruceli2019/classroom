@@ -29,6 +29,14 @@
   <dd>
     <%= @student.email %>
   </dd>
+  
+  <dt>
+    Number of courses
+  </dt>
+  <dd>
+    <%= Enrollment.where(student_id: @student.id).count%>
+  </dd>
+  
 </dl>
 
 <a href="/delete_student/<%= @student.id %>">
@@ -40,3 +48,47 @@
 <a href="/students">
   Go back
 </a>
+
+<div class="card mt-4">
+  <div class="card-header">
+    Course Load
+  </div>
+  <ul class="list-group list-group-flush">
+    <!--loop through enrollments, for each student id match, display the course-->
+    <% Enrollment.where(student_id: @student.id).each do |enroll| %>
+      <li class="list-group-item">
+        <a href = "/courses/<%= enroll.course_id %>"> 
+          <%= Course.find(enroll.course_id).title %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+   
+  <!--add a form-->
+  <div class="card-header">
+    Enroll in a new course
+  </div>
+  
+  <ul class="list-group">
+    <li class = "list-group-item">
+      <!--we use a post method now, so we have to specify that -->
+      <form action="/create_enrollment" method = "post">
+        <!-- Label and input for title -->
+        <div class="form-group">
+          <label for="course">
+            Course
+          </label>
+      
+          <%= select_tag("course_id", options_from_collection_for_select(Course.all, :id, :title, @enrollment.try(:course_id)), :class => "form-control") %>
+        </div>
+        
+        <!-- Label and input for student id of course -->     
+        <!--this is hidden from the user--> 
+        <input type = "hidden" name = "student_id" value = "<%= @student.id %>">
+      
+        <button class="btn btn-block btn-outline-secondary">
+          Create enrollment
+        </button>
+      </form>
+    </li>
+  </ul>
